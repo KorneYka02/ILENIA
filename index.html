@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ILENIA</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg:#120a1f;--card:#1e1230;--line:#3a2459;--ink:#f6e9ff;--dim:#a893c4;--pink:#ff5fd2;--vio:#9b6bff}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--ink);font:16px/1.4 Georgia,'Times New Roman',serif}
+body{padding:env(safe-area-inset-top) 0 calc(96px + env(safe-area-inset-bottom))}
+header{display:flex;justify-content:space-between;align-items:center;padding:16px 16px 4px}
+h1{font-size:26px;letter-spacing:.18em;font-weight:400;background:linear-gradient(90deg,var(--pink),var(--vio));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lang{display:flex;border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.lang button{padding:6px 12px;background:none;border:0;color:var(--dim);font:inherit;font-size:14px}
+.lang .on{background:var(--line);color:var(--ink)}
+nav{display:flex;gap:6px;padding:10px 16px;overflow-x:auto;position:sticky;top:0;background:var(--bg);z-index:2}
+nav button{flex:none;padding:8px 14px;border-radius:18px;border:1px solid var(--line);background:none;color:var(--dim);font:inherit;font-size:15px}
+nav .on{background:linear-gradient(90deg,var(--pink),var(--vio));border-color:transparent;color:#1a0b2a}
+main{padding:6px 16px;display:grid;gap:10px}
+.item{display:flex;gap:14px;align-items:center;text-align:left;width:100%;padding:12px;border-radius:16px;background:var(--card);border:1px solid var(--line);color:var(--ink);font:inherit}
+.item.sel{border-color:var(--pink);box-shadow:0 0 0 1px var(--pink),0 0 18px #ff5fd244}
+.ico{flex:none;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-size:26px;background:radial-gradient(circle at 30% 30%,#4a1260,#1a0b2a);border:1px solid var(--line)}
+.item b{display:block;font-weight:400;font-size:18px}
+.item span{color:var(--dim);font-size:14px}
+h2{font-size:15px;color:var(--dim);font-weight:400;padding:4px 2px}
+.seg{display:flex;gap:8px}
+.seg button{flex:1;padding:10px;border-radius:12px;border:1px solid var(--line);background:none;color:var(--dim);font:inherit}
+.seg .on{border-color:var(--pink);color:var(--ink)}
+.act{padding:12px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;width:100%}
+.link{word-break:break-all;color:var(--dim);font-size:13px;padding:8px 2px}
+footer{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 30%)}
+#go{width:100%;padding:15px;border-radius:16px;border:0;font:inherit;font-size:18px;color:#1a0b2a;background:linear-gradient(90deg,var(--pink),var(--vio))}
+#go:disabled{opacity:.35}
+#sum{text-align:center;color:var(--dim);font-size:13px;padding-bottom:6px;min-height:19px}
+button:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+</style>
+</head>
+<body>
+<header><h1>ILENIA</h1><div class="lang"><button data-l="ru">RU</button><button data-l="en">EN</button></div></header>
+<nav id="tabs"></nav>
+<main id="view"></main>
+<footer><div id="sum"></div><button id="go" disabled></button></footer>
+<script>
+const tg=window.Telegram&&window.Telegram.WebApp;
+if(tg){tg.ready();tg.expand();try{tg.setHeaderColor('#120a1f');tg.setBackgroundColor('#120a1f')}catch(e){}}
+const q=new URLSearchParams(location.search),BOT='ILENIA_AI_BOT';
+const CH=[['alisa','💋','Алиса','Alice','Игривая кокетка, 27','Playful flirt, 27'],['maria','👠','Мария','Maria','Властная начальница, 32','Commanding boss, 32'],['lena','📚','Лена','Lena','Застенчивая библиотекарша, 25','Shy librarian, 25'],['vika','🏍️','Вика','Vika','Дерзкая байкерша, 28','Bold biker, 28'],['kira','🦇','Кира','Kira','Загадочная вампирша, 300 лет жизни','Mysterious vampire, 300 years old'],['elsa','❄️','Эльза','Elsa','Ледяная колдунья, 29','Ice sorceress, 29'],['artem','🍸','Артём','Artyom','Харизматичный бармен, 30','Charming bartender, 30']];
+const SC=[['🍸','Ночной бар','Night bar'],['🚢','Каюта корабля','Ship cabin'],['🏖️','Пляж на закате','Sunset beach'],['🏰','Старый замок','Old castle'],['🏔️','Домик в горах','Mountain cabin'],['🌃','Балкон отеля','Hotel balcony']];
+const ST=[['🕵️','Ночной детектив','Night detective','Пропажа в особняке','A theft at the manor'],['🚀','Дрейф на станции','Station drift','Авария, связи нет','A crash, no signal'],['🍷','Свидание вслепую','Blind date','Вы видитесь впервые','You meet for the first time'],['🌫️','Корабль-призрак','Ghost ship','Пустой корабль в тумане','An empty ship in the fog'],['🏰','Тайна замка','Castle mystery','Три ключа до рассвета','Three keys before dawn'],['✈️','Попутчики','Stranded travelers','Ночь в аэропорту','A night at the airport']];
+const T={ru:{tabs:['Персонажи','Сцены','Сюжеты','Профиль'],go:'Начать общение',pick:'Выбери персонажа',scene:'Обстановка (по желанию)',story:'История с развязкой (по желанию)',len:'Длина ответов',lens:['Короткие','Средние','Длинные'],inv:'Твоя ссылка для друзей',share:'Поделиться',copy:'Скопировать',copied:'Скопировано',daily:'🎁 Ежедневный бонус',soon:'☕ Поддержать проект: скоро',news:'📢 Новости',chat:'💬 Чат',adult:'Только для 18+. Все персонажи вымышленные и взрослые.'},
+en:{tabs:['Characters','Scenes','Stories','Profile'],go:'Start chatting',pick:'Choose a character',scene:'Setting (optional)',story:'A story with an ending (optional)',len:'Reply length',lens:['Short','Medium','Long'],inv:'Your invite link',share:'Share',copy:'Copy',copied:'Copied',daily:'🎁 Daily bonus',soon:'☕ Support the project: soon',news:'📢 News',chat:'💬 Chat',adult:'18+ only. All characters are fictional adults.'}};
+const S={lang:q.get('lang')==='en'?'en':'ru',tab:0,c:null,s:null,st:null,len:'mid'};
+const $=id=>document.getElementById(id),L=()=>S.lang==='en'?1:0,t=()=>T[S.lang];
+const nm=a=>a[2+L()];
+function item(ico,title,sub,on,key){return `<button class="item${on?' sel':''}" data-k="${key}"><div class="ico">${ico}</div><div><b>${title}</b>${sub?`<span>${sub}</span>`:''}</div></button>`}
+function render(){
+ document.documentElement.lang=S.lang;
+ document.querySelectorAll('.lang button').forEach(b=>b.classList.toggle('on',b.dataset.l===S.lang));
+ $('tabs').innerHTML=t().tabs.map((x,i)=>`<button class="${i===S.tab?'on':''}" data-t="${i}">${x}</button>`).join('');
+ let h='';
+ if(S.tab===0)h=`<h2>${t().pick}</h2>`+CH.map(c=>item(c[1],c[2+L()],c[4+L()],S.c===c[0],'c:'+c[0])).join('')+(q.get('custom')?item('⭐',L()?'My character':'Моя героиня','',S.c==='custom','c:custom'):'');
+ if(S.tab===1)h=`<h2>${t().scene}</h2>`+SC.map((x,i)=>item(x[0],x[1+L()],'',S.s===i,'s:'+i)).join('');
+ if(S.tab===2)h=`<h2>${t().story}</h2>`+ST.map((x,i)=>item(x[0],x[1+L()],x[3+L()],S.st===i,'t:'+i)).join('');
+ if(S.tab===3){const u=q.get('u'),link=`https://t.me/${BOT}`+(u?`?start=ref_${u}`:'');
+  h=`<h2>${t().len}</h2><div class="seg">${['short','mid','long'].map((k,i)=>`<button class="${S.len===k?'on':''}" data-k="n:${k}">${t().lens[i]}</button>`).join('')}</div>
+  <h2>${t().inv}</h2><div class="link">${link}</div><div class="seg"><button class="act" data-k="share">${t().share}</button><button class="act" data-k="copy">${t().copy}</button></div>
+  <button class="act" data-k="daily">${t().daily}</button><button class="act" disabled style="opacity:.5">${t().soon}</button>
+  <div class="seg"><button class="act" data-k="news">${t().news}</button><button class="act" data-k="chat">${t().chat}</button></div>
+  <p class="link">${t().adult}</p>`}
+ $('view').innerHTML=h;
+ const c=CH.find(x=>x[0]===S.c),extra=S.s!==null?SC[S.s][1+L()]:S.st!==null?ST[S.st][1+L()]:'';
+ $('sum').textContent=c?[c[2+L()],extra].filter(Boolean).join(' · '):'';
+ $('go').textContent=t().go;$('go').disabled=!S.c;
+}
+function send(o){const d=JSON.stringify(o);if(tg&&tg.sendData)tg.sendData(d);else alert(d)}
+document.addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.l){S.lang=b.dataset.l;return render()}
+ if(b.dataset.t){S.tab=+b.dataset.t;return render()}
+ if(b.id==='go')return send({t:'start',c:S.c,s:S.s,st:S.st,len:S.len,lang:S.lang});
+ const k=b.dataset.k;if(!k)return;
+ const [a,v]=k.split(':');
+ if(a==='c'){S.c=v}else if(a==='s'){S.s=S.s===+v?null:+v;S.st=null}else if(a==='t'){S.st=S.st===+v?null:+v;S.s=null}else if(a==='n'){S.len=v}
+ else if(a==='daily')return send({t:'daily'});
+ else if(a==='news'||a==='chat'){const u=a==='news'?'https://t.me/ILENIA_NEWS':'https://t.me/+RW5UtKFV9tQzNjMy';return tg?tg.openTelegramLink(u):open(u)}
+ else if(a==='share'||a==='copy'){const u=q.get('u'),link=`https://t.me/${BOT}`+(u?`?start=ref_${u}`:'');
+  if(a==='share'&&tg)return tg.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(link));
+  if(navigator.clipboard)navigator.clipboard.writeText(link).then(()=>{b.textContent=t().copied});return}
+ render();
+});
+$('go').addEventListener('click',()=>{});
+render();
+</script>
+</body>
+</html>
